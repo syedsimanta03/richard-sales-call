@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, interactive-widget=resizes-viewport">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0f17" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="description" content="They Booked the Call. Now Close It. — Richard Moore's complete first-call closing framework. An interactive edition.">
+  <meta property="og:title" content="They Booked the Call. Now Close It.">
+  <meta property="og:description" content="Richard Moore's complete first-call closing framework">
+  <meta property="og:type" content="book">
+  <title>They Booked the Call. Now Close It.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com?plugins=typography,forms,aspect-ratio,line-clamp"></script>
+  <script>
+    /* ============================================================
+     ANTI-INSPECT LAYER
+     ============================================================ */
+    // Block right-click / long-press context menu
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    // Block devtools & view-source shortcuts across platforms
+    document.addEventListener('keydown', (e) => {
+      const k = (e.key || '').toUpperCase();
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return;
+      }
+      if (ctrl && e.shiftKey && ['I', 'J', 'C', 'K'].includes(k)) {
+        e.preventDefault();
+        return;
+      }
+      if (ctrl && k === 'U') {
+        e.preventDefault();
+        return;
+      } // view-source
+      if (ctrl && k === 'S') {
+        e.preventDefault();
+        return;
+      } // save page source
+      if (ctrl && e.shiftKey && k === 'M') {
+        e.preventDefault();
+        return;
+      } // responsive mode
+    }, true);
+    // Detect docked devtools via viewport size gap → warn
+    let warned = false;
+    setInterval(() => {
+      const gap = Math.max(window.outerWidth - window.innerWidth, window.outerHeight - window.innerHeight);
+      if (gap > 180 && !warned) {
+        warned = true;
+        toast('🔒 Inspecting is disabled on this edition');
+      }
+      if (gap <= 180) warned = false;
+    }, 1500);
+    /* ---------- keyboard ---------- */
+    document.addEventListener('keydown', (e) => {
+      const coverOpen = !$('#cover-overlay').classList.contains('hidden');
+      const searchOpen = !$('#search-modal').classList.contains('hidden');
+      if ((e.ctrlKey || e.metaKey) && (e.code === 'Space' || (e.key.toLowerCase() === 'k' && !e.shiftKey))) {
+        e.preventDefault();
+        searchOpen ? closeSearch() : openSearch();
+        return;
+      }
+      if (e.key === 'Escape') {
+        closeSearch();
+        closeBookmarks();
+        closeSidebar();
+        return;
+      }
+      if (searchOpen || coverOpen) return;
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight') showPage(current + 1);
+      if (e.key === 'ArrowLeft') showPage(current - 1);
+      if (e.key.toLowerCase() === 'b' && !e.ctrlKey && !e.metaKey) toggleBookmark();
+      if (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey) toggleFS();
+    });
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif'],
+            'serif': ['"Playfair Display"', 'Georgia', 'serif'],
+            'mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            'ink': {
+              50: '#f6f7f9',
+              100: '#eceef2',
+              200: '#d5d9e2',
+              300: '#b0b8c7',
+              400: '#828da3',
+              500: '#626d85',
+              600: '#4d566c',
+              700: '#3f4658',
+              800: '#363c4b',
+              900: '#1f2430',
+              950: '#14171f',
+            },
+            'accent': {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+              950: '#2e1065',
+            },
+          },
+          typography: {
+            DEFAULT: {
+              css: {
+                '--tw-prose-body': 'theme("colors.ink.700")',
+                '--tw-prose-headings': 'theme("colors.ink.950")',
+                '--tw-prose-lead': 'theme("colors.ink.700")',
+                '--tw-prose-links': 'theme("colors.accent.600")',
+                '--tw-prose-bold': 'theme("colors.ink.950")',
+                '--tw-prose-counters': 'theme("colors.ink.500")',
+                '--tw-prose-bullets': 'theme("colors.accent.400")',
+                '--tw-prose-hr': 'theme("colors.ink.200")',
+                '--tw-prose-quotes': 'theme("colors.ink.900")',
+                '--tw-prose-quote-borders': 'theme("colors.accent.400")',
+                '--tw-prose-captions': 'theme("colors.ink.500")',
+                '--tw-prose-code': 'theme("colors.ink.900")',
+                '--tw-prose-pre-code': 'theme("colors.ink.100")',
+                '--tw-prose-pre-bg': 'theme("colors.ink.900")',
+                '--tw-prose-th-borders': 'theme("colors.ink.300")',
+                '--tw-prose-td-borders': 'theme("colors.ink.200")',
+                maxWidth: 'none',
+              },
+            },
+            invert: {
+              css: {
+                '--tw-prose-body': 'theme("colors.ink.300")',
+                '--tw-prose-headings': 'theme("colors.ink.50")',
+                '--tw-prose-lead': 'theme("colors.ink.300")',
+                '--tw-prose-links': 'theme("colors.accent.400")',
+                '--tw-prose-bold': 'theme("colors.ink.50")',
+                '--tw-prose-counters': 'theme("colors.ink.400")',
+                '--tw-prose-bullets': 'theme("colors.accent.500")',
+                '--tw-prose-hr': 'theme("colors.ink.700")',
+                '--tw-prose-quotes': 'theme("colors.ink.100")',
+                '--tw-prose-quote-borders': 'theme("colors.accent.500")',
+                '--tw-prose-captions': 'theme("colors.ink.400")',
+                '--tw-prose-code': 'theme("colors.ink.100")',
+                '--tw-prose-pre-code': 'theme("colors.ink.100")',
+                '--tw-prose-pre-bg': 'theme("colors.ink.950")',
+                '--tw-prose-th-borders': 'theme("colors.ink.700")',
+                '--tw-prose-td-borders': 'theme("colors.ink.800")',
+              },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    /* Target all modern browsers */
+    ::selection {
+      background-color: #ff0099;
+      /* Highlight color */
+      color: #ffffff;
+      /* Text color */
+    }
+
+    html,
+    body {
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .font-serif {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(120, 130, 150, .35);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(120, 130, 150, .6);
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    .fade-in {
+      animation: fadeIn .35s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-fast {
+      animation: fadeIn .18s ease-out;
+    }
+
+    .slide-in-right {
+      animation: slideInRight .25s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .progress-bar {
+      transition: width .25s ease;
+    }
+
+    .toc-link {
+      transition: all .15s ease;
+    }
+
+    .toc-link:hover {
+      background-color: rgba(139, 92, 246, .08);
+    }
+
+    .toc-link.active {
+      background-color: rgba(139, 92, 246, .12);
+      color: theme("colors.accent.700");
+      font-weight: 600;
+    }
+
+    .dark .toc-link.active {
+      color: theme("colors.accent.400");
+      background-color: rgba(139, 92, 246, .10);
+    }
+
+    .pulse-anim {
+      animation: pulse .5s ease;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.25);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .toc-scroll {
+      scrollbar-width: thin;
+    }
+
+    @media print {
+
+      #navbar,
+      #sidebar,
+      #bottom-nav,
+      #cover-overlay,
+      #search-modal,
+      #toast,
+      #mobile-toc-btn,
+      #end-note,
+      #cheatsheet-jump {
+        display: none !important;
+      }
+
+      #reader {
+        grid-template-columns: 1fr !important;
+      }
+
+      #content {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+      }
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    ::selection {
+      background: theme("colors.accent.200");
+      color: theme("colors.ink.900");
+    }
+
+    .dark ::selection {
+      background: theme("colors.accent.700");
+      color: white;
+    }
+
+    *:focus-visible {
+      outline: 2px solid theme("colors.accent.500");
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .hero-grad {
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(139, 92, 246, .28), transparent 60%),
+        radial-gradient(900px 500px at 90% 90%, rgba(98, 109, 133, .20), transparent 60%),
+        linear-gradient(180deg, #0b0f17 0%, #14171f 100%);
+    }
+
+    .dark .hero-grad {
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(139, 92, 246, .32), transparent 60%),
+        radial-gradient(900px 500px at 90% 90%, rgba(98, 109, 133, .25), transparent 60%),
+        linear-gradient(180deg, #07090f 0%, #0b0f17 100%);
+    }
+
+    .book-cover-shadow {
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, .4), 0 18px 36px -18px rgba(139, 92, 246, .4);
+    }
+
+    .prose :where(h1):not(:first-child) {
+      margin-top: 2.5rem;
+    }
+
+    .prose :where(h2) {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+    }
+
+    .prose :where(h2) {
+      border-bottom: 1px solid theme("colors.ink.200");
+      padding-bottom: .5rem;
+      margin-top: 3rem;
+    }
+
+    .dark .prose :where(h2) {
+      border-color: theme("colors.ink.800");
+    }
+
+    .prose :where(h3) {
+      font-weight: 700;
+    }
+
+    .prose :where(blockquote) {
+      border-left-width: 4px;
+      font-style: italic;
+      background: rgba(139, 92, 246, .05);
+      border-radius: 0 .5rem .5rem 0;
+      padding-top: .25rem;
+      padding-bottom: .25rem;
+    }
+
+    .dark .prose :where(blockquote) {
+      background: rgba(139, 92, 246, .08);
+    }
+
+    .prose :where(code):not(pre code) {
+      background: rgba(139, 92, 246, .1);
+      padding: .15em .35em;
+      border-radius: 4px;
+      font-size: .92em;
+      font-weight: 500;
+    }
+
+    .dark .prose :where(code):not(pre code) {
+      background: rgba(139, 92, 246, .18);
+      color: theme("colors.accent.200");
+    }
+
+    .prose :where(table) {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .prose :where(ul) {
+      list-style-type: '•  ';
+      padding-left: 1.4rem;
+    }
+
+    .prose :where(ol) {
+      padding-left: 1.6rem;
+    }
+
+    .prose :where(ol > li)::marker {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: theme("colors.accent.600");
+      font-size: .9em;
+    }
+
+    .dark .prose :where(ol > li)::marker {
+      color: theme("colors.accent.400");
+    }
+
+    .prose :where(hr) {
+      margin: 2.5rem 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .15rem .55rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 500;
+    }
+
+    /* Framework strip (intro page visual layer) */
+    .fw-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .45rem .85rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .fw-arrow {
+      color: theme("colors.ink.300");
+      flex-shrink: 0;
+    }
+
+    .dark .fw-arrow {
+      color: theme("colors.ink.600");
+    }
+
+    mark {
+      background: rgba(139, 92, 246, .25);
+      color: inherit;
+      border-radius: 3px;
+      padding: 0 .1em;
+    }
+
+    .dark mark {
+      background: rgba(139, 92, 246, .35);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-ink-950 text-ink-900 dark:text-ink-100 antialiased">
+
+  <!-- ============== COVER / LANDING OVERLAY ============== -->
+  <div id="cover-overlay" class="fixed inset-0 z-50 hero-grad text-white flex flex-col overflow-y-auto">
+    <div class="px-6 sm:px-10 pt-6 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-sm text-white/70">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" />
+          <path d="M3 7l2-3h14l2 3" />
+          <path d="M9 12h6" />
+        </svg>
+        <span>Sales Mastery Library</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="cover-theme-btn" class="text-white/70 hover:text-white p-2 rounded-lg hover:bg-white/10 transition" title="Toggle theme">
+          <svg class="w-5 h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <svg class="w-5 h-5 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center px-6 sm:px-10 py-10">
+      <div class="grid md:grid-cols-2 gap-10 md:gap-16 items-center max-w-6xl w-full">
+        <div class="flex justify-center md:justify-end">
+          <div id="cover-card" class="book-cover-shadow relative w-[260px] sm:w-[300px] aspect-[3/4] rounded-xl overflow-hidden bg-gradient-to-br from-ink-900 via-ink-950 to-black ring-1 ring-white/10">
+            <div class="absolute inset-0 p-7 flex flex-col">
+              <div class="text-accent-400 text-xs tracking-widest uppercase font-semibold">Closing Framework</div>
+              <div class="mt-auto">
+                <div class="font-serif text-3xl sm:text-4xl font-bold leading-tight text-white">They Booked the Call. <span class="text-accent-400">Now Close It.</span></div>
+                <div class="mt-3 h-px w-16 bg-accent-500"></div>
+                <div class="mt-3 text-white/60 text-sm">Richard Moore's complete first-call closing framework</div>
+                <div class="mt-6 text-white/40 text-xs">By Richard Moore</div>
+              </div>
+            </div>
+            <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-accent-500 to-accent-400"></div>
+          </div>
+        </div>
+
+        <div class="text-center md:text-left">
+          <div class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent-400 font-semibold">
+            <span class="w-6 h-px bg-accent-400"></span>
+            <span>An Interactive Edition</span>
+          </div>
+          <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.05] mt-4">
+            They Booked the Call.<br><span class="text-accent-400">Now Close It.</span>
+          </h1>
+          <p class="mt-5 text-white/70 text-base sm:text-lg max-w-md mx-auto md:mx-0 leading-relaxed">
+            Closing doesn't start at the end of the call. Richard Moore's complete framework — from mindset and energy, through Past → Present → Future, to the trial close, price and objections. 10 modules. One cheat sheet.
+          </p>
+          <div class="mt-7 flex flex-wrap items-center gap-3 justify-center md:justify-start text-sm text-white/60">
+            <span class="chip bg-white/10 text-white/80"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg> <span data-pages-count>0</span> pages</span>
+            <span class="chip bg-white/10 text-white/80" id="cover-time">≈ min read</span>
+            <span class="chip bg-white/10 text-white/80"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7" />
+              </svg> 10 modules</span>
+          </div>
+
+          <div class="mt-9 flex flex-wrap gap-3 justify-center md:justify-start">
+            <button id="start-reading-btn" class="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent-500 hover:bg-accent-400 text-ink-950 font-semibold transition shadow-lg shadow-accent-500/25">
+              <span>Start reading</span>
+              <svg class="w-4 h-4 group-hover:translate-x-0.5 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button id="jump-toc-btn" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 text-white/90 font-medium transition ring-1 ring-white/10">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+              <span>Table of contents</span>
+            </button>
+          </div>
+
+          <div class="mt-8 text-xs text-white/40 flex items-center gap-2 justify-center md:justify-start flex-wrap">
+            <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono">←</kbd>
+            <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono">→</kbd>
+            <span>to navigate</span>
+            <span class="mx-1">·</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono">Ctrl</kbd>
+            <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-mono">Space</kbd>
+            <span>to search</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 sm:px-10 py-5 text-center text-xs text-white/40 border-t border-white/5">
+      By Richard Moore · <span class="text-white/60">Sales Mastery Library</span> · Interactive Edition
+    </div>
+  </div>
+
+  <!-- ============== TOP NAVBAR ============== -->
+  <nav id="navbar" class="sticky top-0 z-30 backdrop-blur-md bg-white/85 dark:bg-ink-950/85 border-b border-ink-200/70 dark:border-ink-800/70 hidden">
+    <div class="flex items-center gap-2 px-3 sm:px-5 h-14">
+      <button id="mobile-toc-btn" class="md:hidden p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" aria-label="Open table of contents">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+
+      <button id="back-to-cover-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Back to cover">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+
+      <div class="flex items-center gap-2 text-sm min-w-0 flex-1">
+        <span class="hidden sm:inline text-ink-500 dark:text-ink-400">Books</span>
+        <svg class="hidden sm:inline w-3 h-3 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        <span class="font-medium text-ink-900 dark:text-ink-100 truncate hidden sm:inline">Now Close It.</span>
+        <svg class="hidden md:inline w-3 h-3 text-ink-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        <span id="breadcrumb-page" class="hidden md:inline text-ink-500 dark:text-ink-400 truncate"></span>
+      </div>
+
+      <!-- Quick jump to cheat sheet -->
+      <button id="cheatsheet-jump" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-accent-600 dark:text-accent-400 px-3 py-1.5 rounded-full bg-accent-50 dark:bg-accent-950/40 hover:bg-accent-100 dark:hover:bg-accent-900/40 transition" title="Jump to the Final Cheat Sheet">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <path d="M8 7h8M8 11h8M8 15h5" />
+        </svg>
+        Cheat Sheet
+      </button>
+
+      <div id="page-counter" class="hidden sm:flex items-center text-xs font-mono text-ink-500 dark:text-ink-400 px-2.5 py-1 rounded-full bg-ink-100 dark:bg-ink-900">
+        0 / 0
+      </div>
+
+      <button id="search-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Search (Ctrl+Space)">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M21 21l-4.3-4.3" />
+        </svg>
+      </button>
+
+      <button id="bookmark-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Bookmark this page (B)">
+        <svg id="bookmark-icon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+        </svg>
+      </button>
+
+      <button id="bookmarks-list-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200 relative" title="Bookmarks">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 5a2 2 0 012-2h6v18l-5-3-5 3z" />
+          <path d="M21 5a2 2 0 00-2-2h-6v18l5-3 5 3z" />
+        </svg>
+        <span id="bookmarks-count" class="hidden absolute -top-0.5 -right-0.5 bg-accent-500 text-white text-[10px] font-bold rounded-full px-1 min-w-[16px] h-4 flex items-center justify-center">0</span>
+      </button>
+
+      <div class="hidden sm:flex items-center gap-0.5 bg-ink-100 dark:bg-ink-900 rounded-full p-0.5">
+        <button id="font-decrease" class="px-2 py-1 rounded-full text-xs font-medium text-ink-600 dark:text-ink-300 hover:bg-white dark:hover:bg-ink-800 transition" title="Decrease font">A−</button>
+        <button id="font-reset" class="px-2 py-1 rounded-full text-xs font-medium text-ink-600 dark:text-ink-300 hover:bg-white dark:hover:bg-ink-800 transition" title="Reset font">A</button>
+        <button id="font-increase" class="px-2 py-1 rounded-full text-xs font-medium text-ink-600 dark:text-ink-300 hover:bg-white dark:hover:bg-ink-800 transition" title="Increase font">A+</button>
+      </div>
+
+      <button id="theme-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Toggle theme">
+        <svg class="w-5 h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+        <svg class="w-5 h-5 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      </button>
+
+      <button id="fullscreen-btn" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Fullscreen (F)">
+        <svg id="fs-enter" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3" />
+        </svg>
+        <svg id="fs-exit" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3" />
+        </svg>
+      </button>
+
+      <button id="print-btn" class="hidden sm:block p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-200" title="Print / Save PDF">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" />
+        </svg>
+      </button>
+    </div>
+    <div class="h-0.5 bg-ink-100 dark:bg-ink-900">
+      <div id="progress-bar" class="progress-bar h-full bg-accent-500" style="width: 0%"></div>
+    </div>
+  </nav>
+
+  <!-- ============== READER ============== -->
+  <div id="reader" class="grid md:grid-cols-[280px_1fr] min-h-screen">
+    <aside id="sidebar" class="hidden md:block fixed md:sticky top-14 md:top-14 left-0 z-20 w-[280px] h-[calc(100vh-3.5rem)] bg-white dark:bg-ink-950 border-r border-ink-200/70 dark:border-ink-800/70 overflow-y-auto toc-scroll">
+      <div id="toc-container" class="p-4"></div>
+    </aside>
+
+    <div id="sidebar-backdrop" class="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-10 hidden"></div>
+
+    <main class="min-w-0">
+      <div class="max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 sm:py-14">
+        <div id="page-section-eyebrow" class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-accent-600 dark:text-accent-400 mb-4">
+          <span></span>
+        </div>
+
+        <h1 id="page-title" class="font-serif text-3xl sm:text-4xl md:text-[2.5rem] font-bold leading-tight text-ink-950 dark:text-ink-50 mb-3"></h1>
+
+        <div class="flex flex-wrap items-center gap-3 text-sm text-ink-500 dark:text-ink-400 mb-8 pb-6 border-b border-ink-200 dark:border-ink-800">
+          <span id="page-meta-position" class="font-mono text-xs"></span>
+          <span class="text-ink-300">·</span>
+          <span id="page-meta-words" class="text-xs"></span>
+          <span class="text-ink-300">·</span>
+          <span id="page-meta-time" class="chip bg-ink-100 dark:bg-ink-900 text-ink-600 dark:text-ink-300"></span>
+        </div>
+
+        <!-- Framework strip (visual layer, intro page only) -->
+        <div id="framework-strip" class="hidden mb-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-accent-50 to-ink-50 dark:from-accent-950/30 dark:to-ink-900/40 ring-1 ring-accent-200/60 dark:ring-accent-900/40 overflow-x-auto">
+          <div id="fw-pills" class="flex items-center gap-2 min-w-max"></div>
+        </div>
+
+        <article id="content" class="prose prose-lg dark:prose-invert max-w-none fade-in"></article>
+
+        <div id="bottom-nav" class="mt-16 pt-6 border-t border-ink-200 dark:border-ink-800 flex items-stretch gap-3">
+          <button id="prev-btn" class="group flex-1 flex flex-col items-start text-left p-4 rounded-xl border border-ink-200 dark:border-ink-800 hover:border-accent-400 dark:hover:border-accent-500 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+            <span class="text-xs text-ink-500 dark:text-ink-400 flex items-center gap-1">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Previous
+            </span>
+            <span id="prev-title" class="mt-1 font-medium text-ink-900 dark:text-ink-100 truncate w-full">—</span>
+          </button>
+
+          <button id="next-btn" class="group flex-1 flex flex-col items-end text-right p-4 rounded-xl border border-ink-200 dark:border-ink-800 hover:border-accent-400 dark:hover:border-accent-500 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+            <span class="text-xs text-ink-500 dark:text-ink-400 flex items-center gap-1">
+              Next
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </span>
+            <span id="next-title" class="mt-1 font-medium text-ink-900 dark:text-ink-100 truncate w-full">—</span>
+          </button>
+        </div>
+
+        <div id="end-note" class="hidden mt-12 text-center py-8 px-4 rounded-2xl bg-ink-50 dark:bg-ink-900/50 border border-ink-200 dark:border-ink-800">
+          <div class="font-serif text-2xl text-ink-900 dark:text-ink-100">🎉 You finished the framework.</div>
+          <p class="mt-2 text-sm text-ink-500 dark:text-ink-400">Now go run your next call: Relate → Diagnose → Prescribe → Close. Or start over.</p>
+          <button id="restart-btn" class="mt-4 px-5 py-2 rounded-full bg-accent-500 hover:bg-accent-400 text-ink-950 text-sm font-semibold transition">Back to start</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============== SEARCH MODAL ============== -->
+  <div id="search-modal" class="fixed inset-0 z-50 hidden">
+    <div id="search-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 flex items-start justify-center pt-[10vh] px-4">
+      <div class="relative w-full max-w-2xl bg-white dark:bg-ink-950 rounded-2xl shadow-2xl ring-1 ring-ink-200 dark:ring-ink-800 overflow-hidden fade-in-fast">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-ink-200 dark:border-ink-800">
+          <svg class="w-5 h-5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <input id="search-input" type="search" autocomplete="off" placeholder="Search the framework…" class="flex-1 bg-transparent outline-none text-base sm:text-lg text-ink-900 dark:text-ink-100 placeholder-ink-400">
+          <kbd class="hidden sm:inline-block text-xs font-mono text-ink-400 px-2 py-1 rounded bg-ink-100 dark:bg-ink-900">Esc</kbd>
+        </div>
+        <div id="search-results" class="max-h-[60vh] overflow-y-auto">
+          <div class="px-5 py-8 text-center text-ink-400 text-sm">Type to search across all modules…</div>
+        </div>
+        <div class="px-5 py-3 border-t border-ink-200 dark:border-ink-800 text-xs text-ink-400 flex items-center justify-between">
+          <span><kbd class="font-mono">↑</kbd> <kbd class="font-mono">↓</kbd> to navigate · <kbd class="font-mono">Enter</kbd> to open</span>
+          <span><span id="search-count">0</span> results</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== BOOKMARKS PANEL ============== -->
+  <div id="bookmarks-panel" class="fixed inset-0 z-40 hidden">
+    <div id="bookmarks-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <aside class="absolute right-0 top-0 bottom-0 w-full sm:w-[400px] bg-white dark:bg-ink-950 shadow-2xl flex flex-col slide-in-right">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-ink-200 dark:border-ink-800">
+        <h3 class="font-serif text-xl font-semibold text-ink-900 dark:text-ink-100 flex items-center gap-2">
+          <svg class="w-5 h-5 text-accent-500" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+          </svg>
+          Bookmarks
+        </h3>
+        <button id="close-bookmarks" class="p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="bookmarks-list" class="flex-1 overflow-y-auto p-3"></div>
+    </aside>
+  </div>
+
+  <!-- ============== TOAST ============== -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div id="toast-msg" class="bg-ink-900 dark:bg-ink-50 text-white dark:text-ink-950 text-sm font-medium px-5 py-2.5 rounded-full shadow-lg opacity-0 translate-y-2 transition-all"></div>
+  </div>
+
+  <script>
+    /* ============================================================
+   BOOK DATA — content 100% verbatim
+   ============================================================ */
+    window.BOOK_DATA = {
+      meta: {
+        title: "They Booked the Call. Now Close It.",
+        subtitle: "Richard Moore's Complete First-Call Closing Framework",
+        author: "Richard Moore",
+        publisher: "Sales Mastery Library",
+        description: "The complete framework for closing high-ticket sales calls — mindset, energy, diagnosis, prescription, trial close, price and objections."
+      },
+      sections: {
+        "foundations": {
+          label: "Foundations",
+          icon: "book"
+        },
+        "the-call": {
+          label: "The Call",
+          icon: "phone"
+        },
+        "the-conversation": {
+          label: "The Conversation",
+          icon: "chat"
+        },
+        "the-close": {
+          label: "The Close",
+          icon: "check"
+        },
+        "objections": {
+          label: "Objections & Q&A",
+          icon: "shield"
+        },
+        "cheatsheet": {
+          label: "Final Cheat Sheet",
+          icon: "zap"
+        }
+      },
+      pages: [{
+          id: "core-idea",
+          title: "They Booked the Call. Now Close It.",
+          section: "foundations",
+          frameworkStrip: true,
+          content: `## The core idea
+
+> **Closing doesn't start at the end of the call.**
+>
+> It starts with how the prospect feels about you from the first minute.
+
+Richard's framework:
+
+**RELATE → BUILD AUTHORITY → DIAGNOSE → PRESCRIBE → TRIAL CLOSE → PRICE → ACTION**`
+        },
+        {
+          id: "module-01-mindset",
+          title: "Module 00 — 🧠 Mindset",
+          section: "the-call",
+          content: `## Lesson 01 — They Asked for the Call
+
+Before the call, Richard's internal script is:
+
+**"They asked for this call."**
+
+That changes the psychology completely.
+
+* They agreed to speak with you.
+* They already have some level of curiosity.
+* You don't need to "beg" for the sale.
+* Your job is to understand whether you can genuinely help.
+* Don't enter thinking:
+
+  ❌ "I hope they buy."
+
+  ❌ "I really need this money."
+
+  ❌ "What if they reject me?"
+
+Instead:
+
+> "They want to explore whether I can help them."`
+        },
+        {
+          id: "module-01-lessons-2-3",
+          title: "Module 01 — Earn the Right to Lead",
+          section: "the-call",
+          content: `## Lesson 02 — Earn the Right to Lead
+
+You're not there to be another passive participant.
+
+You're there because:
+
+**They have a problem → you understand the problem → you know how to solve it.**
+
+Therefore:
+
+### Your role
+
+**Prospect = expert on their business**
+
+**You = expert on the problem you're solving**
+
+Richard's point is that "expert" is relative.
+
+You don't have to be the world's best.
+
+You only need to know more about solving **this particular problem** than the person sitting opposite you.
+
+---
+
+## Lesson 03 — Stop Impostor Syndrome at the Door
+
+Ask yourself:
+
+> **Do I genuinely know what I'm doing?**
+
+If yes:
+
+> **I've got this.**
+
+The prospect doesn't need another uncertain person.
+
+They already have uncertainty.
+
+They're paying you to remove it.`
+        },
+        {
+          id: "module-02-energy",
+          title: "Module 02 — ⚡ Energy",
+          section: "the-call",
+          content: `## Lesson 04 — Premium Energy Isn't Hype
+
+For high-ticket calls:
+
+❌ Too excited
+❌ Overly enthusiastic
+❌ "OMG THIS IS AMAZING!" energy
+
+Can make you look inexperienced.
+
+Instead:
+
+### Calm confidence
+
+**Warm + relaxed + interested + certain**
+
+Think:
+
+> "I've done this before. Let's figure out what's going on."
+
+Not:
+
+> "PLEASE BUY MY THING."
+
+Richard argues that people often buy the **feeling that you've got this**, not simply the features of the product.
+
+---
+
+## Lesson 05 — Be Good to Be Around
+
+You don't have to be:
+
+* hilarious
+* charismatic
+* hyper
+* entertaining
+
+You do need to be:
+
+**Warm.**
+
+Make them feel:
+
+> "I'm glad I'm talking to this person."
+
+Simple things:
+
+* Smile
+* Welcome them
+* Show genuine interest
+* Be dynamic
+* Consider standing during calls
+* Match the seriousness of the conversation
+
+---
+
+## Lesson 06 — Treat Every Call Like It Could Be Your Best Client
+
+You don't know what's coming.
+
+Your next call could become:
+
+**→ your best client
+→ your biggest deal
+→ your longest relationship
+→ your strongest referral source**
+
+So don't mentally downgrade people before you've met them.`
+        },
+        {
+          id: "module-03-call-setup",
+          title: "Module 03 — 🎥 Call Setup",
+          section: "the-call",
+          content: `## Lesson 07 — Specific Small Talk
+
+Don't waste five minutes on:
+
+> "How's the weather?"
+
+Instead:
+
+**Specific → personal → relevant**
+
+Examples:
+
+> "I saw you spoke at that event last week."
+
+> "I noticed you recently launched X."
+
+> "How did that conference go?"
+
+> "I saw your post about X."
+
+The message:
+
+**"I actually noticed YOU."**
+
+Not:
+
+**"I'm performing a generic sales-call script."**
+
+---
+
+## Lesson 08 — Remove Every Distraction
+
+Before the call:
+
+### KILL
+
+* Email notifications
+* WhatsApp
+* Slack
+* Phone
+* Random browser tabs
+* Anything on your desk that pulls attention
+
+Your only job:
+
+> **Be completely present with the prospect.**
+
+Richard's point is blunt: if someone may be about to give you a high-ticket payment, don't let an email notification steal your attention.
+
+---
+
+## Lesson 09 — SET THE AGENDA
+
+No agenda = they control the call.
+
+You lead by giving the call a structure.
+
+Richard repeatedly uses the **Rule of 3**.
+
+### The call:
+
+**PAST**
+↓
+**PRESENT**
+↓
+**FUTURE**
+
+A simple opening:
+
+> "I thought we'd do three things today."
+
+### 1 — Past
+
+Understand their background.
+
+### 2 — Present
+
+Understand the current problem.
+
+### 3 — Future
+
+Prescribe the solution.
+
+Simple.
+
+Predictable.
+
+Easy to follow.`
+        },
+        {
+          id: "module-04-cardinal-rules",
+          title: "Module 04 — 🚨 The 5 Cardinal Rules",
+          section: "the-call",
+          content: `These are Richard's non-negotiables for first-call closing.
+
+---
+
+## RULE #1 — "I've Got This."
+
+Your internal state must become external confidence.
+
+They are thinking:
+
+> "Can this person solve my problem?"
+
+Your behaviour needs to communicate:
+
+> **"Yes. I know what to do."**
+
+---
+
+## RULE #2 — NO HEDGING
+
+Kill language like:
+
+❌ "Maybe…"
+
+❌ "Possibly…"
+
+❌ "I think…"
+
+❌ "It might…"
+
+❌ "Perhaps we could…"
+
+❌ "My recommendation would be…"
+
+Instead:
+
+**"Here's what you need."**
+
+Why?
+
+Because the prospect already has uncertainty.
+
+They don't need you to sell them **more uncertainty**.
+
+---
+
+## RULE #3 — NO OPTIONS
+
+This is one of Richard's biggest points.
+
+### Weak expert
+
+> "We could do A, B or C. What do you think?"
+
+### Strong expert
+
+> "Based on what you've told me, here's what you need."
+
+The buyer decides:
+
+**YES or NO**
+
+You decide:
+
+**WHAT they should buy.**
+
+Richard's doctor analogy:
+
+A doctor doesn't normally say:
+
+> "Here are five medicines. Which one would you like?"
+
+The doctor diagnoses → prescribes.
+
+---
+
+## RULE #4 — DON'T COACH
+
+This is HUGE for service businesses.
+
+Don't give away the entire solution during the sales call.
+
+### Give:
+
+**WHAT needs to happen**
+
+### Don't give:
+
+**HOW to execute every step**
+
+For example:
+
+> "Your funnel needs a better conversion structure, stronger messaging and cleaner tracking."
+
+Fine.
+
+But don't spend 45 minutes explaining exactly:
+
+* how to rewrite every section
+* how to build every campaign
+* how to configure every tracking event
+* how to execute the entire strategy
+
+Otherwise:
+
+**You become the free consultant.**
+
+And the prospect thinks:
+
+> "Maybe I'll just try this myself."
+
+Richard calls this commercially dangerous.
+
+---
+
+## RULE #5 — THEY GO FIRST
+
+Don't open with:
+
+> "Hi! Great to meet you. Let me tell you about myself…"
+
+Instead:
+
+**Get them talking.**
+
+Your background isn't the main event.
+
+Their problem is.
+
+If they ask about you:
+
+→ answer briefly
+
+→ then steer back.
+
+Example:
+
+> "Happy to give you the quick background, but let's first understand what you're dealing with. Tell me how you got to where you are today."`
+        },
+        {
+          id: "module-05-the-past",
+          title: "Module 05 — 🕰️ The Past",
+          section: "the-conversation",
+          content: `## Lesson 10 — Get Their Origin Story
+
+The first third of the call is mostly about **them talking**.
+
+Ask:
+
+> "What made you start the business?"
+
+> "What made you choose this role?"
+
+> "How did you get to where you are today?"
+
+> "Tell me a little about the journey."
+
+Why?
+
+Because talking settles people down.
+
+It also gives you material to relate to.
+
+---
+
+## Lesson 11 — RELATE
+
+The prospect needs to feel:
+
+> **"This person gets me."**
+
+Not necessarily:
+
+> "This person is exactly like me."
+
+You need some sense of:
+
+**shared values → shared experience → shared understanding**
+
+---
+
+## Lesson 12 — Positive Interruptions
+
+Richard calls these **positive interruptions**.
+
+They're not interruptions that derail the prospect.
+
+They're interruptions that create connection.
+
+Example:
+
+> "I know I'm interrupting, but you're describing something I've seen so many times."
+
+Or:
+
+> "That's exactly what one of my clients was dealing with."
+
+Or:
+
+> "I've actually been through something very similar."
+
+The message:
+
+### "You're not dealing with some weird unsolvable problem."
+
+I've seen this before.
+
+---
+
+## Lesson 13 — Make the Problem Feel Familiar
+
+Prospect's internal state:
+
+> "I don't know how to navigate this."
+
+Your job:
+
+> **"I've seen this before."**
+
+That creates relief.
+
+**Relief → trust → openness → authority**
+
+Richard uses the idea:
+
+**"You're special — but you're not the only person I've seen with this problem."**
+
+The goal isn't to diminish them.
+
+It's to demonstrate experience.`
+        },
+        {
+          id: "module-06-the-present",
+          title: "Module 06 — 🔍 The Present — Diagnosis",
+          section: "the-conversation",
+          content: `Now the conversation changes.
+
+### Past
+
+**Relate**
+
+↓
+
+### Present
+
+**Diagnose**
+
+↓
+
+### Future
+
+**Prescribe**
+
+---
+
+## Lesson 14 — Enter Doctor Mode
+
+Richard repeatedly uses the **doctor analogy**.
+
+Doctor doesn't immediately prescribe.
+
+First:
+
+**Ask → investigate → diagnose**
+
+Same thing on the sales call.
+
+Transition:
+
+> "I've got a sense now of where you've come from. Talk to me about where the issue is at the moment."
+
+---
+
+## Lesson 15 — Ask Consultant-Level Questions
+
+Weak:
+
+> "Do you have any problems with marketing?"
+
+Strong:
+
+> "Tell me what you've tried so far."
+
+> "Talk me through what's happening currently."
+
+> "What have you done to solve this?"
+
+> "Where do you feel the problem is?"
+
+> "What isn't working?"
+
+> "What would success look like?"
+
+The language matters.
+
+**"Tell me…"**
+
+**"Talk me through…"**
+
+**"What have you tried…"**
+
+puts you into diagnostic authority.
+
+---
+
+## Lesson 16 — Get Them to Confirm the Problem
+
+Don't assume the prospect fully understands the seriousness of their own problem.
+
+Get them to say it.
+
+Example:
+
+> "It sounds like this is actually quite a big issue for you."
+
+Then listen.
+
+They may say:
+
+> "Yes. It really is."
+
+That's important.
+
+Because now **they've verbally acknowledged the need.**
+
+---
+
+## Lesson 17 — The Pain Must Matter
+
+A prospect who says:
+
+> "Yeah, it'd be nice to fix it."
+
+is very different from:
+
+> "I really need this fixed."
+
+### LOW PAIN
+
+"I suppose it would help."
+
+### HIGH PAIN
+
+"This is costing us."
+
+"I've tried everything."
+
+"I can't keep doing this."
+
+"I need this sorted."
+
+You don't necessarily need to make the pain worse.
+
+You need to establish whether the problem **actually matters enough to solve now**.`
+        },
+        {
+          id: "module-07-the-future",
+          title: "Module 07 — 🔮 The Future — Prescription",
+          section: "the-conversation",
+          content: `Now the baton changes hands.
+
+The prospect has:
+
+**explained → diagnosed → exposed the problem**
+
+Now:
+
+> **"I've got this."**
+
+---
+
+## Lesson 18 — Prescribe, Don't Recommend
+
+This distinction matters.
+
+### Recommendation
+
+> "I think you could perhaps consider…"
+
+### Prescription
+
+> "Here's what you need."
+
+You are now the expert.
+
+Your responsibility is to prescribe the appropriate solution.
+
+---
+
+## Lesson 19 — Explain WHAT, Not HOW
+
+This is one of the most useful rules for freelancers.
+
+### WHAT
+
+**"We'll rebuild the landing-page messaging, redesign the conversion path, implement tracking and then optimise the campaigns."**
+
+### HOW
+
+**"First I'll change the hero copy, then I'll move this button, then we'll create these 7 events, then I'll configure X in GTM…"**
+
+Don't give away the entire implementation.
+
+The client needs confidence in the **solution**, not a free training course.
+
+---
+
+## Lesson 20 — Make Complex Offers Feel Simple
+
+Richard recommends grouping complicated offers into **three broad pillars**.
+
+For example:
+
+### 01 — BUILD
+
+Initial setup / strategy / foundation
+
+### 02 — EXECUTE
+
+Implementation / delivery
+
+### 03 — OPTIMISE
+
+Review / improve / iterate
+
+Your actual offer might contain 17 things.
+
+The prospect doesn't need to hear all 17.
+
+### 3 = digestible
+
+### 1–2 = potentially incomplete
+
+### 4–6 = starts feeling complicated
+
+And complexity creates:
+
+> "Can you send me an email?"
+
+Which often means:
+
+**"I need distance to think."**
+
+---
+
+## Lesson 21 — Make the Solution Feel Safe
+
+Richard repeatedly uses the idea:
+
+> **"It's really simple."**
+
+Not because the work itself is necessarily simple.
+
+But because the prospect should feel:
+
+**"This person has control of the complexity."**
+
+That's what expertise feels like.`
+        },
+        {
+          id: "module-08-trial-close",
+          title: "Module 08 — 🎯 The Trial Close",
+          section: "the-close",
+          content: `This is the bridge between:
+
+**"I understand the solution."**
+
+and
+
+**"I'm ready to buy."**
+
+---
+
+## Lesson 22 — DON'T Ask "Are You Interested?"
+
+Bad:
+
+> "So, are you interested?"
+
+Or:
+
+> "Does that sound interesting?"
+
+Why?
+
+Because you've already established:
+
+* They have a problem.
+* They need help.
+* You've diagnosed it.
+* You've prescribed a solution.
+
+Of course it's "interesting."
+
+---
+
+## Lesson 23 — Ask About SUPPORT
+
+Richard's preferred wording:
+
+> **"Does that sound like the kind of level of support you feel you need?"**
+
+The question isn't:
+
+**"Did I give a good presentation?"**
+
+It's:
+
+**"Does this solve the problem you told me about?"**
+
+---
+
+## Lesson 24 — Wait for an EMPHATIC YES
+
+Good:
+
+> "Yes. This is exactly what I need."
+
+> "Yeah, I really think this would help."
+
+> "That's exactly the support I'm looking for."
+
+Weak:
+
+> "Yeah… I think so."
+
+> "Maybe."
+
+> "Sounds interesting."
+
+> "I'd have to think about it."
+
+### Don't rush to price after a weak YES.
+
+Fix the uncertainty first.
+
+---
+
+## Lesson 25 — THE TWO TRUST QUESTIONS
+
+If the prospect isn't fully sold, Richard suggests two diagnostic questions:
+
+### 1
+
+> **"Can you see how this is going to fix the problem?"**
+
+### 2
+
+> **"Do you trust that I'm the person who can do it?"**
+
+Think of it as:
+
+**SOLUTION TRUST + PERSON TRUST**
+
+---
+
+### If YES + YES
+
+🔥 You're ready for price.
+
+### If NO on solution
+
+Go back:
+
+> "Which part doesn't make sense?"
+
+### If NO on you
+
+Go back:
+
+> "Where have I lost you?"
+
+Don't hide the uncertainty.
+
+Find it.
+
+Fix it.
+
+Then move forward.`
+        },
+        {
+          id: "module-09-price-close",
+          title: "Module 09 — 💰 Price & Close",
+          section: "the-close",
+          content: `## Lesson 26 — Price Comes LAST
+
+The sequence:
+
+**Problem**
+↓
+**Diagnosis**
+↓
+**Solution**
+↓
+**Confirmation**
+↓
+**Price**
+
+Not:
+
+**Price**
+↓
+"Here's why you should buy."
+
+---
+
+## Lesson 27 — "Expensive" Is Subjective
+
+Richard's core argument:
+
+> **People don't buy price. They buy perceived value.**
+
+The same $X can feel:
+
+### EXPENSIVE
+
+when value is unclear.
+
+### CHEAP / WORTH IT
+
+when value is obvious.
+
+Therefore:
+
+**Don't defend the price before you've established the value.**
+
+---
+
+## Lesson 28 — Don't Create Fake Urgency
+
+Richard doesn't recommend:
+
+> "Only 2 spaces left!"
+
+> "You need to decide today!"
+
+> "This price expires tonight!"
+
+Instead:
+
+### Natural urgency
+
+The prospect wants the solution.
+
+They lean forward.
+
+They say:
+
+> "I really need this."
+
+That's enough.
+
+---
+
+## Lesson 29 — Closing Energy
+
+Once they've said YES:
+
+Don't suddenly become nervous.
+
+Don't say:
+
+> "Well… if you'd like… perhaps we could…"
+
+Instead:
+
+> **"Cool. Let's get on with it."**
+
+Then move toward the first action.
+
+---
+
+## Lesson 30 — ASSUME THE NEXT STEP
+
+Example:
+
+> "Let's book the first step. Are you free Thursday?"
+
+Or:
+
+> "I'll need you next Tuesday. Have you got time in the afternoon?"
+
+Or:
+
+> "Let's get the first session booked."
+
+The prospect has already told you:
+
+**"This is exactly what I need."**
+
+Now you're simply leading.
+
+---
+
+## Lesson 31 — Don't Tiptoe Around the Sale
+
+Once they've demonstrated value perception:
+
+**Leadership ≠ pressure**
+
+Pressure happens when:
+
+> They haven't bought → you push.
+
+Leadership happens when:
+
+> They have bought → you move.
+
+That's a massive distinction.
+
+Richard's point is essentially:
+
+**Get permission through the trial close → then lead decisively.**`
+        },
+        {
+          id: "module-10-objections",
+          title: "Module 10 — 🧯 Objections & Q&A",
+          section: "objections",
+          content: `## Objection 01 — "It's too expensive."
+
+First question:
+
+### Is it actually a VALUE problem?
+
+or
+
+### Is it an ABILITY-TO-PAY problem?
+
+These are different.
+
+---
+
+## VALUE PROBLEM
+
+> "I don't think this is worth it."
+
+Don't solve with payment plans.
+
+Go back to:
+
+**value → problem → trust**
+
+---
+
+## CASH-FLOW PROBLEM
+
+> "I really want this, but I can't pay the full amount right now."
+
+That's different.
+
+Richard describes cases where the person genuinely wants the solution but needs payment flexibility.
+
+The key:
+
+**Don't automatically interpret "I can't pay today" as "I don't want it."**
+
+---
+
+## Objection 02 — "I need to think about it."
+
+Richard treats this carefully.
+
+Often:
+
+> "I need to think about it"
+
+isn't the real objection.
+
+It can mean:
+
+* I don't fully understand the value.
+* I don't fully trust you.
+* I don't feel enough urgency.
+* I'm uncomfortable with the price.
+* I want distance from the decision.
+
+Go backward.
+
+Ask:
+
+> "What part isn't quite landing?"
+
+or:
+
+> "Where have I lost you?"
+
+---
+
+## Objection 03 — "Can you send me something?"
+
+Don't automatically fire off a PDF.
+
+First understand:
+
+### Why?
+
+If the answer is:
+
+> "I just want to understand it better."
+
+Then the problem is clarity.
+
+If:
+
+> "I need to show my partner."
+
+Then the problem is decision authority.
+
+If:
+
+> "I want to compare options."
+
+Then value/positioning may not be strong enough.
+
+---
+
+## Objection 04 — "I need to speak to my partner."
+
+Richard discusses this as one of the situations where the prospect can say:
+
+> "Everything sounds great. I want to do it. But I need to check with my husband/wife/partner."
+
+The important distinction:
+
+### Is the partner genuinely part of the decision?
+
+or
+
+### Is "my partner" being used as an escape hatch?
+
+If they're genuinely enthusiastic, don't assume the deal is dead.
+
+---
+
+## Objection 05 — "That's too much support."
+
+Interesting one.
+
+The customer isn't always right simply because they're the customer.
+
+Ask yourself:
+
+### Is it actually too much?
+
+OR
+
+### Does it simply FEEL overwhelming?
+
+If it's overwhelm:
+
+> "It's okay. I've got you. My job is to guide you through it."
+
+If it's genuinely more than they need:
+
+**Prescribe less.**
+
+The expert decides what is appropriate.
+
+---
+
+## Objection 06 — "I haven't tried anything yet."
+
+This came up in the Q&A around cold outreach.
+
+The prospect may not have experienced enough pain yet.
+
+So don't invent pain.
+
+Explore the gap.
+
+Ask:
+
+> "How do you feel it's going at the moment?"
+
+> "What does success look like?"
+
+> "Do you feel you're where you need to be?"
+
+> "If nothing changes over the next 6–12 months, where does that leave you?"
+
+This is essentially using **implication**:
+
+**Current state → future consequence → cost of staying the same**
+
+Richard references the SPIN-selling concept here.
+
+---
+
+## B2B vs B2C
+
+Richard says the framework works for both.
+
+## B2C
+
+The process can move relatively directly:
+
+**Content → DM → Call → Close**
+
+His own high-ticket examples are largely B2C.
+
+---
+
+## B2B
+
+Still works.
+
+But cold B2B requires more work **before** the framework starts.
+
+You need:
+
+**Value → relevance → reason to continue → call**
+
+Once they've leaned in:
+
+**Past → Present → Future**
+
+The major adjustment is the front end.`
+        },
+        {
+          id: "final-cheat-sheet",
+          title: "🏁 The Entire Call — One Screen",
+          section: "cheatsheet",
+          content: `## 🟢 01 — RELATE
+
+**"Tell me how you got here."**
+
+↓
+
+## 🔵 02 — DIAGNOSE
+
+**"Tell me what's happening now."**
+
+↓
+
+## 🟠 03 — EXPOSE
+
+**"How serious is this problem?"**
+
+↓
+
+## 🟣 04 — PRESCRIBE
+
+**"Here's what you need."**
+
+↓
+
+## 🟡 05 — CONFIRM
+
+**"Does this feel like the level of support you need?"**
+
+↓
+
+## 🔴 06 — TRUST CHECK
+
+**"Can you see how this fixes the problem?"**
+
+**"Do you trust me to do it?"**
+
+↓
+
+## 💰 07 — PRICE
+
+Only after value is established.
+
+↓
+
+## 🚀 08 — ACTION
+
+**"Cool. Let's get started."**`
+        }
+      ]
+    };
+    /* ============================================================
+       READER ENGINE
+       ============================================================ */
+    (function() {
+      const BOOK = window.BOOK_DATA;
+      const pages = BOOK.pages;
+      const sections = BOOK.sections;
+      const LS = {
+        theme: 'rmb-theme',
+        font: 'rmb-font',
+        marks: 'rmb-bookmarks',
+        page: 'rmb-page'
+      };
+      const $ = (s) => document.querySelector(s);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      marked.setOptions({
+        breaks: true,
+        gfm: true
+      });
+      const renderMD = (md) => DOMPurify.sanitize(marked.parse(md));
+      const ICONS = {
+        book: '<path d="M4 19.5A2.5 2.5 0 016.5 17H20V4a2 2 0 00-2-2H6.5A2.5 2.5 0 004 4.5v15z"/><path d="M4 19.5A2.5 2.5 0 006.5 22H20v-5"/>',
+        phone: '<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/>',
+        chat: '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+        check: '<circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/>',
+        shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+        zap: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'
+      };
+      const icon = (name, cls = 'w-4 h-4') =>
+        `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.book}</svg>`;
+      /* Framework strip pills (visual layer only) */
+      const FRAMEWORK = [
+        ['Relate', 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'],
+        ['Build Authority', 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300'],
+        ['Diagnose', 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300'],
+        ['Prescribe', 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300'],
+        ['Trial Close', 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'],
+        ['Price', 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'],
+        ['Action', 'bg-ink-200 text-ink-800 dark:bg-ink-800 dark:text-ink-200']
+      ];
+
+      function renderFrameworkStrip() {
+        $('#fw-pills').innerHTML = FRAMEWORK.map(([label, cls], i) =>
+          `<span class="fw-pill ${cls}">${label}</span>` +
+          (i < FRAMEWORK.length - 1 ? `<svg class="fw-arrow w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>` : '')
+        ).join('');
+      }
+      /* ---------- state ---------- */
+      let current = 0;
+      let bookmarks = JSON.parse(localStorage.getItem(LS.marks) || '[]');
+      let fontScale = parseFloat(localStorage.getItem(LS.font) || '1');
+      /* ---------- theme ---------- */
+      function applyTheme(t) {
+        document.documentElement.classList.toggle('dark', t === 'dark');
+        localStorage.setItem(LS.theme, t);
+      }
+      applyTheme(localStorage.getItem(LS.theme) ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+      const toggleTheme = () => applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+      $('#theme-btn').addEventListener('click', toggleTheme);
+      $('#cover-theme-btn').addEventListener('click', toggleTheme);
+      /* ---------- stats ---------- */
+      const words = (t) => t.trim().split(/\s+/).length;
+      const totalWords = pages.reduce((a, p) => a + words(p.content), 0);
+      const totalMin = Math.max(1, Math.round(totalWords / 200));
+      document.querySelector('[data-pages-count]').textContent = pages.length;
+      $('#cover-time').textContent = `≈ ${totalMin} min read`;
+      /* ---------- TOC ---------- */
+      function renderTOC() {
+        const grouped = {};
+        pages.forEach((p, i) => (grouped[p.section] = grouped[p.section] || []).push({
+          ...p,
+          index: i
+        }));
+        let html = `<div class="text-xs uppercase tracking-widest font-semibold text-ink-400 dark:text-ink-500 px-2 mb-3">Contents</div>`;
+        for (const [key, label] of Object.entries(sections)) {
+          if (!grouped[key]) continue;
+          html += `
+        <div class="mt-3 mb-1 px-2 flex items-center gap-2 text-[11px] uppercase tracking-wider font-semibold text-accent-600 dark:text-accent-400">
+          ${icon(label.icon, 'w-3.5 h-3.5')} ${label.label}
+        </div>`;
+          grouped[key].forEach((p) => {
+            html += `
+          <a href="#" data-page="${p.index}" class="toc-link block px-3 py-2 rounded-lg text-sm text-ink-600 dark:text-ink-300" title="${p.title}">
+            ${p.title}
+          </a>`;
+          });
+        }
+        $('#toc-container').innerHTML = html;
+      }
+      $('#toc-container').addEventListener('click', (e) => {
+        const a = e.target.closest('[data-page]');
+        if (!a) return;
+        e.preventDefault();
+        openReader(+a.dataset.page);
+        closeSidebar();
+      });
+      /* ---------- page rendering ---------- */
+      function showPage(i) {
+        current = Math.max(0, Math.min(pages.length - 1, i));
+        const p = pages[current];
+        const sec = sections[p.section] || {
+          label: '',
+          icon: 'book'
+        };
+        $('#page-section-eyebrow').innerHTML =
+          `<span class="w-6 h-px bg-accent-500"></span><span class="inline-flex items-center gap-1.5">${icon(sec.icon, 'w-3.5 h-3.5')} ${sec.label}</span>`;
+        $('#page-title').textContent = p.title;
+        $('#page-meta-position').textContent = `Page ${current + 1} / ${pages.length}`;
+        $('#page-meta-words').textContent = `${words(p.content).toLocaleString()} words`;
+        $('#page-meta-time').innerHTML =
+          `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ${Math.max(1, Math.round(words(p.content) / 200))} min read`;
+        $('#breadcrumb-page').textContent = p.title;
+        $('#page-counter').textContent = `${current + 1} / ${pages.length}`;
+        $('#framework-strip').classList.toggle('hidden', !p.frameworkStrip);
+        const content = $('#content');
+        content.innerHTML = renderMD(p.content);
+        content.classList.remove('fade-in');
+        void content.offsetWidth;
+        content.classList.add('fade-in');
+        if (window.gsap && !reduceMotion) {
+          gsap.fromTo(content.children, {
+            opacity: 0,
+            y: 14
+          }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.45,
+            stagger: 0.04,
+            ease: 'power2.out',
+            clearProps: 'all'
+          });
+        }
+        $('#prev-btn').disabled = current === 0;
+        $('#next-btn').disabled = current === pages.length - 1;
+        $('#prev-title').textContent = current > 0 ? pages[current - 1].title : '—';
+        $('#next-title').textContent = current < pages.length - 1 ? pages[current + 1].title : '—';
+        $('#end-note').classList.toggle('hidden', current !== pages.length - 1);
+        $('#end-note').classList.toggle('fade-in', current === pages.length - 1);
+        updateBookmarkUI();
+        highlightTOC();
+        localStorage.setItem(LS.page, current);
+        window.scrollTo({
+          top: 0
+        });
+      }
+
+      function highlightTOC() {
+        document.querySelectorAll('.toc-link').forEach((a) =>
+          a.classList.toggle('active', +a.dataset.page === current));
+      }
+      /* ---------- navigation ---------- */
+      $('#prev-btn').addEventListener('click', () => showPage(current - 1));
+      $('#next-btn').addEventListener('click', () => showPage(current + 1));
+      $('#restart-btn').addEventListener('click', () => {
+        showPage(0);
+        window.scrollTo({
+          top: 0
+        });
+      });
+      $('#cheatsheet-jump').addEventListener('click', () => {
+        const idx = pages.findIndex((p) => p.section === 'cheatsheet');
+        if (idx !== -1) showPage(idx);
+      });
+      /* ---------- cover ---------- */
+      function openReader(page = 0) {
+        $('#cover-overlay').classList.add('hidden');
+        $('#navbar').classList.remove('hidden');
+        showPage(page);
+        window.scrollTo({
+          top: 0
+        });
+      }
+      $('#start-reading-btn').addEventListener('click', () => openReader(0));
+      $('#jump-toc-btn').addEventListener('click', () => {
+        openReader(0);
+        if (window.innerWidth < 768) openSidebar();
+      });
+      $('#back-to-cover-btn').addEventListener('click', () => {
+        $('#cover-overlay').classList.remove('hidden');
+        $('#navbar').classList.add('hidden');
+        window.scrollTo({
+          top: 0
+        });
+      });
+      /* ---------- sidebar (mobile) ---------- */
+      function openSidebar() {
+        $('#sidebar').classList.remove('hidden');
+        $('#sidebar').classList.add('fixed', 'z-20', 'slide-in-right');
+        $('#sidebar-backdrop').classList.remove('hidden');
+      }
+
+      function closeSidebar() {
+        $('#sidebar').classList.add('hidden');
+        $('#sidebar').classList.remove('slide-in-right');
+        $('#sidebar-backdrop').classList.add('hidden');
+      }
+      $('#mobile-toc-btn').addEventListener('click', openSidebar);
+      $('#sidebar-backdrop').addEventListener('click', closeSidebar);
+      /* ---------- progress bar ---------- */
+      window.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const pct = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) * 100;
+        $('#progress-bar').style.width = pct + '%';
+      }, {
+        passive: true
+      });
+      /* ---------- font size ---------- */
+      function applyFont() {
+        $('#content').style.fontSize = (fontScale * 100) + '%';
+        localStorage.setItem(LS.font, fontScale);
+      }
+      $('#font-increase').addEventListener('click', () => {
+        fontScale = Math.min(1.35, fontScale + 0.08);
+        applyFont();
+      });
+      $('#font-decrease').addEventListener('click', () => {
+        fontScale = Math.max(0.85, fontScale - 0.08);
+        applyFont();
+      });
+      $('#font-reset').addEventListener('click', () => {
+        fontScale = 1;
+        applyFont();
+      });
+      /* ---------- bookmarks ---------- */
+      function saveMarks() {
+        localStorage.setItem(LS.marks, JSON.stringify(bookmarks));
+      }
+
+      function updateBookmarkUI() {
+        const p = pages[current];
+        const active = bookmarks.includes(p.id);
+        const ic = $('#bookmark-icon');
+        ic.setAttribute('fill', active ? 'currentColor' : 'none');
+        ic.classList.toggle('text-accent-500', active);
+        ic.classList.remove('pulse-anim');
+        void ic.offsetWidth;
+        ic.classList.add('pulse-anim');
+        const badge = $('#bookmarks-count');
+        badge.textContent = bookmarks.length;
+        badge.classList.toggle('hidden', bookmarks.length === 0);
+      }
+
+      function toggleBookmark() {
+        const p = pages[current];
+        if (bookmarks.includes(p.id)) {
+          bookmarks = bookmarks.filter((b) => b !== p.id);
+          toast('Bookmark removed');
+        } else {
+          bookmarks.push(p.id);
+          toast('Bookmark saved 🔖');
+        }
+        saveMarks();
+        updateBookmarkUI();
+        renderBookmarksList();
+      }
+      $('#bookmark-btn').addEventListener('click', toggleBookmark);
+
+      function renderBookmarksList() {
+        const list = $('#bookmarks-list');
+        if (!bookmarks.length) {
+          list.innerHTML = `
+        <div class="text-center py-12 text-ink-400 text-sm">
+          <svg class="w-12 h-12 mx-auto mb-3 text-ink-300 dark:text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+          <p>No bookmarks yet.</p>
+          <p class="mt-1 text-ink-300 dark:text-ink-600">Click the bookmark icon on any page (or press B).</p>
+        </div>`;
+          return;
+        }
+        list.innerHTML = bookmarks.map((id) => {
+          const idx = pages.findIndex((p) => p.id === id);
+          const p = pages[idx];
+          const sec = sections[p.section] || {
+            label: ''
+          };
+          return `
+        <a href="#" data-page="${idx}" class="block p-3 rounded-xl hover:bg-ink-50 dark:hover:bg-ink-900 transition group">
+          <div class="text-[11px] uppercase tracking-wider font-semibold text-accent-600 dark:text-accent-400">${sec.label}</div>
+          <div class="mt-0.5 text-sm font-medium text-ink-900 dark:text-ink-100 group-hover:text-accent-600 dark:group-hover:text-accent-400">${p.title}</div>
+          <div class="mt-1 text-xs font-mono text-ink-400">Page ${idx + 1} / ${pages.length}</div>
+        </a>`;
+        }).join('');
+      }
+      $('#bookmarks-list').addEventListener('click', (e) => {
+        const a = e.target.closest('[data-page]');
+        if (!a) return;
+        e.preventDefault();
+        closeBookmarks();
+        openReader(+a.dataset.page);
+      });
+
+      function openBookmarks() {
+        $('#bookmarks-panel').classList.remove('hidden');
+        renderBookmarksList();
+      }
+
+      function closeBookmarks() {
+        $('#bookmarks-panel').classList.add('hidden');
+      }
+      $('#bookmarks-list-btn').addEventListener('click', openBookmarks);
+      $('#close-bookmarks').addEventListener('click', closeBookmarks);
+      $('#bookmarks-backdrop').addEventListener('click', closeBookmarks);
+      /* ---------- search ---------- */
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        } [c]));
+      }
+
+      function doSearch(q) {
+        const out = $('#search-results');
+        q = q.trim().toLowerCase();
+        if (!q) {
+          out.innerHTML = '<div class="px-5 py-8 text-center text-ink-400 text-sm">Type to search across all modules…</div>';
+          $('#search-count').textContent = 0;
+          return;
+        }
+        const results = [];
+        pages.forEach((p, i) => {
+          const hay = (p.title + '\n' + p.content).toLowerCase();
+          let idx = hay.indexOf(q),
+            count = 0;
+          while (idx !== -1 && count < 3) {
+            const raw = p.content.toLowerCase().indexOf(q, Math.max(0, idx - p.title.length));
+            const start = Math.max(0, (raw === -1 ? idx : raw) - 60);
+            let snippet = p.content.substring(start, (raw === -1 ? idx : raw) + q.length + 80).replace(/\n/g, ' ');
+            const rx = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+            snippet = escapeHtml(snippet).replace(rx, '<mark>$1</mark>');
+            results.push({
+              i,
+              p,
+              snippet
+            });
+            idx = hay.indexOf(q, idx + q.length);
+            count++;
+          }
+        });
+        $('#search-count').textContent = results.length;
+        if (!results.length) {
+          out.innerHTML = '<div class="px-5 py-8 text-center text-ink-400 text-sm">No results for “' + escapeHtml(q) + '”.</div>';
+          return;
+        }
+        out.innerHTML = results.map((r) => `
+      <a href="#" data-page="${r.i}" class="block px-5 py-3.5 border-b border-ink-100 dark:border-ink-800/60 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition">
+        <div class="text-sm font-semibold text-ink-900 dark:text-ink-100 flex items-center gap-2">
+          <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-accent-100 dark:bg-accent-900/50 text-accent-700 dark:text-accent-300">${r.i + 1}</span>
+          ${escapeHtml(r.p.title)}
+        </div>
+        <div class="mt-1 text-xs text-ink-500 dark:text-ink-400 leading-relaxed line-clamp-2">…${r.snippet}…</div>
+      </a>`).join('');
+      }
+      $('#search-input').addEventListener('input', (e) => doSearch(e.target.value));
+      $('#search-results').addEventListener('click', (e) => {
+        const a = e.target.closest('[data-page]');
+        if (!a) return;
+        e.preventDefault();
+        closeSearch();
+        openReader(+a.dataset.page);
+      });
+
+      function openSearch() {
+        $('#search-modal').classList.remove('hidden');
+        setTimeout(() => $('#search-input').focus(), 50);
+      }
+
+      function closeSearch() {
+        $('#search-modal').classList.add('hidden');
+        $('#search-input').value = '';
+      }
+      $('#search-btn').addEventListener('click', openSearch);
+      $('#search-backdrop').addEventListener('click', closeSearch);
+      /* ---------- fullscreen ---------- */
+      function toggleFS() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      }
+      $('#fullscreen-btn').addEventListener('click', toggleFS);
+      document.addEventListener('fullscreenchange', () => {
+        const fs = !!document.fullscreenElement;
+        $('#fs-enter').classList.toggle('hidden', fs);
+        $('#fs-exit').classList.toggle('hidden', !fs);
+      });
+      $('#print-btn').addEventListener('click', () => window.print());
+      /* ---------- toast ---------- */
+      let toastTimer;
+
+      function toast(msg) {
+        const t = $('#toast-msg');
+        t.textContent = msg;
+        t.classList.remove('opacity-0', 'translate-y-2');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.add('opacity-0', 'translate-y-2'), 2000);
+      }
+      /* ---------- keyboard ---------- */
+      document.addEventListener('keydown', (e) => {
+        const coverOpen = !$('#cover-overlay').classList.contains('hidden');
+        const searchOpen = !$('#search-modal').classList.contains('hidden');
+        if ((e.ctrlKey || e.metaKey) && (e.code === 'Space' || e.key.toLowerCase() === 'k')) {
+          e.preventDefault();
+          searchOpen ? closeSearch() : openSearch();
+          return;
+        }
+        if (e.key === 'Escape') {
+          closeSearch();
+          closeBookmarks();
+          closeSidebar();
+          return;
+        }
+        if (searchOpen || coverOpen) return;
+        if (e.key === 'ArrowRight') showPage(current + 1);
+        if (e.key === 'ArrowLeft') showPage(current - 1);
+        if (e.key.toLowerCase() === 'b' && !e.metaKey && !e.ctrlKey) toggleBookmark();
+        if (e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey) toggleFS();
+      });
+      /* ---------- cover entrance (GSAP) ---------- */
+      if (window.gsap && !reduceMotion) {
+        gsap.from('#cover-card', {
+          opacity: 0,
+          y: 30,
+          rotateY: -8,
+          duration: 0.9,
+          ease: 'power3.out'
+        });
+        gsap.from('#cover-overlay h1', {
+          opacity: 0,
+          y: 24,
+          duration: 0.7,
+          delay: 0.15,
+          ease: 'power3.out'
+        });
+        gsap.from('#cover-overlay p, #cover-overlay .chip, #cover-overlay button', {
+          opacity: 0,
+          y: 16,
+          duration: 0.5,
+          stagger: 0.06,
+          delay: 0.3,
+          ease: 'power2.out',
+          clearProps: 'all'
+        });
+      }
+      /* ---------- init ---------- */
+      renderFrameworkStrip();
+      renderTOC();
+      applyFont();
+      updateBookmarkUI();
+      renderBookmarksList();
+      showPage(+localStorage.getItem(LS.page) || 0);
+    })();
+  </script>
+</body>
+
+</html>
